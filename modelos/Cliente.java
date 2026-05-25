@@ -1,34 +1,54 @@
 package modelos;
 
-
 public class Cliente {
-    private final Integer id; 
+
+    private final int id;
     private final String nome;
     private final String email;
 
-
-    public Cliente(Integer id, String nome, String email) {
-        validarCliente(nome, email);
-        this.id = id;
-        this.nome = nome;
-        this.email = email;
-    }
-
  
+    public Cliente(int id, String nome, String email) {
+        validarNome(nome);
+        validarEmail(email);
+        this.id = id;
+        this.nome = nome.trim();                  // remove espaços das bordas
+        this.email = email.trim().toLowerCase();   // padroniza e-mail em minúsculas
+    }
+
+   
     public Cliente(String nome, String email) {
-        this(null, nome, email);
+        this(0, nome, email); 
     }
 
-    private void validarCliente(String nome, String email) {
-        if (nome == null || nome.trim().isEmpty()) {
-            throw new RegraNegocioException("O nome do cliente é obrigatório.");
-        }
-        if (email == null || email.trim().isEmpty() || !email.contains("@")) {
-            throw new RegraNegocioException("E-mail inválido ou vazio.");
-        }
-    }
 
-    public Integer getId() { return id; }
-    public String getNome() { return nome; }
+    public int getId(){ return id;    }
+    public String getNome(){ return nome;  }
     public String getEmail() { return email; }
+
+
+    private static void validarNome(String nome) {
+        if (nome == null || nome.isBlank()) {
+            throw new utilitarios.ValidacaoException("Nome do cliente é obrigatório.");
+        }
+        if (nome.trim().length() > 100) {
+            throw new utilitarios.ValidacaoException("Nome do cliente deve ter no máximo 100 caracteres.");
+        }
+    }
+
+    private static void validarEmail(String email) {
+        if (email == null || email.isBlank()) {
+            throw new utilitarios.ValidacaoException("E-mail do cliente é obrigatório.");
+        }
+        if (!email.trim().matches("^[\\w._%+\\-]+@[\\w.\\-]+\\.[a-zA-Z]{2,}$")) {
+            throw new utilitarios.ValidacaoException("E-mail inválido: " + email);
+        }
+        if (email.trim().length() > 150) {
+            throw new utilitarios.ValidacaoException("E-mail deve ter no máximo 150 caracteres.");
+        }
+    }
+
+    @Override
+    public String toString() {
+        return String.format("Cliente[id=%d, nome='%s', email='%s']", id, nome, email);
+    }
 }
