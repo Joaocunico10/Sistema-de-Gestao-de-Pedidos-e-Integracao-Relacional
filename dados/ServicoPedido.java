@@ -81,6 +81,10 @@ public class ServicoPedido {
         return repositorioPedido.listarTodos();
     }
 
+    public List<Object[]> relatorioPorStatus() {
+        return repositorioPedido.pedidosPorStatus();
+    }
+
     public Pedido buscarPorId(int id) {
         return repositorioPedido.buscarPorId(id)
                 .orElseThrow(() -> new ValidacaoException("Pedido nao encontrado com id: " + id));

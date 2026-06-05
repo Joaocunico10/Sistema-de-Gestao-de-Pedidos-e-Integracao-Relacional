@@ -129,6 +129,34 @@ public class RepositorioPedido {
         }
     }
 
+    public List<Object[]> pedidosPorStatus() {
+        final String sql = "SELECT p.status, COUNT(p.id) AS quantidade, " +
+                "       COALESCE(SUM(i.quantidade * i.preco_unitario), 0) AS total " +
+                "FROM pedidos p " +
+                "LEFT JOIN itens_pedido i ON i.pedido_id = p.id " +
+                "GROUP BY p.status " +
+                "ORDER BY p.status";
+
+        List<Object[]> lista = new ArrayList<>();
+
+        try (Connection conn = Conexao.obterConexao();
+                PreparedStatement ps = conn.prepareStatement(sql);
+                ResultSet rs = ps.executeQuery()) {
+
+            while (rs.next()) {
+                lista.add(new Object[]{
+                    rs.getString("status"),
+                    rs.getInt("quantidade"),
+                    rs.getBigDecimal("total")
+                });
+            }
+            return lista;
+
+        } catch (SQLException e) {
+            throw new BancoDeDadosException("Erro ao gerar relatorio de pedidos por status.", e);
+        }
+    }
+
     private List<ItemPedido> buscarItensDoPedido(Connection conn, int pedidoId) throws SQLException {
         final String sql = "SELECT i.id, i.pedido_id, i.quantidade, i.preco_unitario, " +
                 "       p.id AS prod_id, p.nome AS prod_nome, p.preco AS prod_preco, " +

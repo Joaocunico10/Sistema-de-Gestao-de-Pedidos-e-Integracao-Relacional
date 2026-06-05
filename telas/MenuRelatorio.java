@@ -1,5 +1,6 @@
 package telas;
 
+import dados.ServicoPedido;
 import dados.ServicoProduto;
 import java.math.BigDecimal;
 import java.util.List;
@@ -8,10 +9,12 @@ import java.util.Scanner;
 public class MenuRelatorio {
 
     private final ServicoProduto servicoProduto;
+    private final ServicoPedido  servicoPedido;
     private final Scanner        scanner;
 
     public MenuRelatorio(Scanner scanner) {
         this.servicoProduto = new ServicoProduto();
+        this.servicoPedido  = new ServicoPedido();
         this.scanner        = scanner;
     }
 
@@ -21,6 +24,7 @@ public class MenuRelatorio {
             System.out.println("\n--- MENU RELATORIOS ---");
             System.out.println("1. Produtos mais vendidos");
             System.out.println("2. Vendas por categoria");
+            System.out.println("3. Pedidos por status");
             System.out.println("0. Voltar");
             System.out.print("Opção: ");
 
@@ -29,6 +33,7 @@ public class MenuRelatorio {
             switch (opcao) {
                 case "1" -> relatorioMaisVendidos();
                 case "2" -> relatorioPorCategoria();
+                case "3" -> relatorioPorStatus();
                 case "0" -> voltar = true;
                 default  -> System.out.println("Opcao invalida.");
             }
@@ -53,13 +58,28 @@ public class MenuRelatorio {
         List<Object[]> dados = servicoProduto.totalVendidoPorCategoria();
         System.out.println("\nVendas por categoria:");
         if (dados.isEmpty()) {
-            System.out.println("  Nenhum dado disponível. Finalize alguns pedidos primeiro.");
+            System.out.println("  Nenhum dado disponivel. Finalize alguns pedidos primeiro.");
             return;
         }
         System.out.printf("  %-20s %s%n", "Categoria", "Total Vendido (R$)");
         System.out.println("  " + "-".repeat(45));
         for (Object[] linha : dados) {
             System.out.printf("  %-20s R$%10.2f%n", linha[0], (BigDecimal) linha[1]);
+        }
+    }
+
+    private void relatorioPorStatus() {
+        List<Object[]> dados = servicoPedido.relatorioPorStatus();
+        System.out.println("\nPedidos por status:");
+        if (dados.isEmpty()) {
+            System.out.println("  Nenhum pedido encontrado.");
+            return;
+        }
+        System.out.printf("  %-15s %-12s %s%n", "Status", "Quantidade", "Total (R$)");
+        System.out.println("  " + "-".repeat(48));
+        for (Object[] linha : dados) {
+            System.out.printf("  %-15s %-12d R$%10.2f%n",
+                    linha[0], linha[1], (BigDecimal) linha[2]);
         }
     }
 }
