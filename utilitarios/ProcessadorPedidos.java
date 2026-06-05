@@ -8,46 +8,32 @@ import modelos.Pedido;
 import modelos.StatusPedido;
 
 public class ProcessadorPedidos extends Thread {
-
-        // Quanto tempo a thread espera entre cada ciclo de processamento (5 segundos).
     private static final long INTERVALO_CICLO_MS     = 5_000;
-    // Simula o tempo de "processar" um pedido (2 segundos).
     private static final long TEMPO_PROCESSAMENTO_MS = 2_000;
-
-    // "volatile" garante que, quando Main mudar rodando=false,
-    // a thread veja a mudança imediatamente (sem cache de CPU).
     private volatile boolean rodando = true;
     private final RepositorioPedido repositorioPedido;
 
     public ProcessadorPedidos() {
         this.repositorioPedido = new RepositorioPedido();
-        // setDaemon(true): thread "daemon" é secundária — quando o programa
-        // principal termina, ela é encerrada automaticamente pela JVM.
+
         setDaemon(true);
-        setName("Thread-ProcessadorPedidos"); // nome aparece nos logs e depuração
+        setName("Thread-ProcessadorPedidos"); 
     }
 
-    /**
-     * Chamado pelo Main quando o usuário digita 0 (sair).
-     * interrupt() acorda a thread caso esteja dormindo no Thread.sleep().
-     */
     public void encerrar() {
         this.rodando = false;
         this.interrupt();
     }
 
-    /**
-     * Método principal da thread — executado ao chamar start().
-     * Não chame run() diretamente! Use start() para rodar em paralelo.
-     */
+
     @Override
     public void run() {
         System.out.println("[THREAD] Processador de pedidos iniciado.");
 
-        // Fica rodando até encerrar() ser chamado ou a thread ser interrompida.
+       
         while (rodando && !isInterrupted()) {
-            processarCiclo(); // busca e processa pedidos em FILA
-            if (!dormirEntreCiclos()) break; // retorna false se foi interrompida
+            processarCiclo(); 
+            if (!dormirEntreCiclos()) break; 
         }
 
         System.out.println("[THREAD] Processador de pedidos encerrado.");
@@ -58,14 +44,12 @@ public class ProcessadorPedidos extends Thread {
 
             List<Pedido> pedidosNaFila = repositorioPedido.buscarPorStatus(conn, StatusPedido.FILA);
 
-            // Se não houver pedidos na fila, não faz nada neste ciclo.
             if (pedidosNaFila.isEmpty()) {
                 return;
             }
 
             System.out.printf("[THREAD] %d pedido(s) encontrado(s) na fila.%n", pedidosNaFila.size());
 
-            // Processa cada pedido encontrado, um por um.
             for (Pedido pedido : pedidosNaFila) {
                 processarPedido(conn, pedido);
             }
@@ -77,9 +61,7 @@ public class ProcessadorPedidos extends Thread {
 
     private void processarPedido(Connection conn, Pedido pedido) {
         try {
-            // Atualiza o status de FILA para PROCESSANDO de forma condicional.
-            // "WHERE status = FILA" garante que só esta thread pegue o pedido.
-            // Se outra thread já pegou antes, reservado = false e pulamos.
+  
             boolean reservado = repositorioPedido.atualizarStatusCondicional(
                 conn, pedido.getId(), StatusPedido.FILA, StatusPedido.PROCESSANDO
             );
@@ -110,20 +92,14 @@ public class ProcessadorPedidos extends Thread {
         }
     }
 
-    /**
-     * Pausa a thread entre ciclos de processamento.
-     * Extraído do loop principal para evitar o aviso "Thread.sleep called in loop".
-     *
-     * @return false se a thread foi interrompida durante o sono (sinal de encerramento)
-     */
+
     private boolean dormirEntreCiclos() {
         try {
-            // Dorme entre ciclos. Se encerrar() for chamado durante o sono,
-            // InterruptedException é lançada e retornamos false para sair do loop.
+
             Thread.sleep(INTERVALO_CICLO_MS);
             return true;
         } catch (InterruptedException e) {
-            Thread.currentThread().interrupt(); // restaura o flag de interrupção
+            Thread.currentThread().interrupt(); 
             return false;
         }
     }
