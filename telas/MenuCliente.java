@@ -29,6 +29,7 @@ public class MenuCliente {
             System.out.println("║  3. Buscar por ID         ║");
             System.out.println("║  0. Voltar                ║");
             System.out.println("╚═══════════════════════════╝");
+
             System.out.print("Opção: ");
 
             String opcao = scanner.nextLine().trim();
@@ -71,8 +72,7 @@ public class MenuCliente {
                 "  [%d] %-30s  %s%n",
                 c.getId(),
                 c.getNome(),
-                c.getEmail()
-        ));
+                c.getEmail()));
     }
 
     private void buscarPorId() {
