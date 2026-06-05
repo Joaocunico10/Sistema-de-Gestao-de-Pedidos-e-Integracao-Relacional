@@ -1,0 +1,22 @@
+# Arquivos compilados Java
+*.class
+
+# Pacotes
+*.jar
+*.war
+*.ear
+
+# IDEs
+.idea/
+.vscode/
+*.iml
+*.iws
+*.ipr
+nbproject/
+.settings/
+.classpath
+.project
+
+# Sistema operacional
+.DS_Store
+Thumbs.db
